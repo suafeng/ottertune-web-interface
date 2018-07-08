@@ -1,10 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Lead</h1>
-<ul>
-{% for user in users %}
-    <li>{{ user.username }}</li>
-{% endfor %}
-</ul>
+<h1>Leader Board</h1>
+
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Rank #</th>
+      <th scope="col">User</th>
+      <th scope="col">Tuning Time</th>
+      <th scope="col">Throughput</th>
+    </tr>
+  </thead>
+
+  <tbody>
+  	{% for user in users %}
+  	<tr>
+  		<td>{{ user.username }}</td>
+  		<td>{{ user.username }}</td>
+  		<td>{{ user.username }}</td>
+  		<td>{{ user.username }}</td>
+  	</tr>	
+  	{% endfor %}
+
+  </tbody>
+</table>
+
 {% endblock %}
