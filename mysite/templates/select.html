@@ -5,7 +5,14 @@
 
 
 <div class="main-content">
-  <h2>Choose!</h2>
+  <!--h2>Choose!</h2-->
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="#">OtterTune</a>
+    </li>
+    <li class="breadcrumb-item active">Tune</li>
+  </ol>
+
   <div class="card">
     <div class="card-header">Choose Your Settings</div>
       <table class="table table-striped">
@@ -33,9 +40,16 @@
         </tbody>
       </table>
     </div>
-  <button type="submit">Go!</button>
-  </div>
-</div>
 
+    <div class="card-footer">    
+      <form> 
+      Username:   <input type="text" name="username">
+      Email:   <input type="text" name="email">
+      <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+
+</div>
 
 {% endblock %}
