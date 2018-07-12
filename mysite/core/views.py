@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from django.views.generic.list import ListView
 from django.utils import timezone
 
-from mysite.core.forms import SignUpForm, TpccForm
+from mysite.core.forms import SignUpForm
+from mysite.core.models import TpccForm
 
 
 @login_required
