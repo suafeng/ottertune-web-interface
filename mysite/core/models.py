@@ -15,6 +15,12 @@ class Config(models.Model):
   shared_buffers = models.IntegerField(choices=SHARED_BUFFERS_CHOICES)
   effective_io_concurrency = models.IntegerField(choices=EFFECTIVE_IO_CONCURRENCY_CHOICES)
 
+class Lead(models.Model):
+  username = models.CharField(max_length=20)
+  tuning_time = models.FloatField(default=0.0)
+  throughput = models.FloatField(default=0.0)
+  rank = models.IntegerField(default=0)
+  
 class TpccForm(ModelForm):
   # def __init__(self, username, email, *args, **kwargs):
   #   self.username = user
