@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from django.views.generic.list import ListView
 from django.utils import timezone
 
-from mysite.core.forms import SignUpForm, TpccForm
+from mysite.core.forms import SignUpForm
+from mysite.core.models import TpccForm, Lead
 
 
 @login_required
@@ -37,11 +38,29 @@ def tpcc(request):
         form = TpccForm()
     return render(request, 'select.html', {'form': form})
 
-def board(request):
-    users = User.objects.all()
+# class LeadListView(ListView):
+#     model = User
+#     template_name = 'lead.html'  # Default: <app_label>/<model_name>_list.html
+#     context_object_name = 'users'  # Default: object_list
+#     queryset = User.objects.all()
 
 class LeadListView(ListView):
-    model = User
+    model = Lead
     template_name = 'lead.html'  # Default: <app_label>/<model_name>_list.html
-    context_object_name = 'users'  # Default: object_list
-    queryset = User.objects.all()
+    context_object_name = 'leads'  # Default: object_list
+    # queryset = Lead.objects.all()
+    leads = Lead.objects.order_by('-throughput')
+    curr_rank = 1
+    cnt = 0
+
+    for lead in leads:
+        if cnt < 1:
+            lead.rank = curr_rank
+        else:
+            if lead.throughput == leads[cnt - 1].throughput:
+                lead.rank = leads[cnt - 1].rank
+            else:
+                curr_rank += 1
+                lead.rank = curr_rank
+        cnt += 1
+    queryset = leads
