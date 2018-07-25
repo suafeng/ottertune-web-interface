@@ -1,0 +1,21 @@
+[
+	{
+        "fields": {
+            "username": "bohan", 
+            "tuning_time": "1234", 
+            "throughput": 9999, 
+            "rank": 1
+        }, 
+        "model": "demo.Lead"
+    },
+
+    {
+        "fields": {
+            "username": "taodai", 
+            "tuning_time": "5678", 
+            "throughput": 6666, 
+            "rank": 2
+        }, 
+        "model": "demo.Lead"
+    }
+]

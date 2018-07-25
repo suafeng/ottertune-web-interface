@@ -21,12 +21,10 @@ class Lead(models.Model):
   throughput = models.FloatField(default=0.0)
   rank = models.IntegerField(default=0)
   
-class TpccForm(ModelForm):
-  # def __init__(self, username, email, *args, **kwargs):
-  #   self.username = user
-  #   self.email = email
-  #   super(TpccForm, self).__init__(*args, **kwargs)
+class KnobCatalog(models.Model):
+  name = models.CharField(max_length=30)
+  description = models.CharField(max_length=200)
+  # TO FIX, chars 
+  default = models.IntegerField()
+  setting = models.CharField(max_length=200)
 
-  class Meta:
-    model = Config
-    fields = ['username', 'email', 'shared_buffers', 'effective_io_concurrency']

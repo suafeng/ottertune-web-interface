@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 from django.views.generic.list import ListView
 from django.utils import timezone
 
-from mysite.core.forms import SignUpForm
-from mysite.core.models import TpccForm, Lead
+from .forms import SignUpForm
+from .models import KnobCatalog, Lead
 
 
 @login_required
@@ -30,13 +30,17 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 def tpcc(request):
-    if request.method == 'POST':
-        form = TpccForm(request.POST)
-        if form.is_valid():
-            return redirect('lead')
-    else:
-        form = TpccForm()
-    return render(request, 'select.html', {'form': form})
+
+   # if request.method == 'POST':
+   #     form = TpccForm(request.POST)
+  #      if form.is_valid():
+  #          return redirect('lead')
+  #  else:
+    knobs = KnobCatalog.objects.all()
+    settings = []
+    for knob in knobs:
+        settings.append((knob, knob.setting.split(",")))
+    return render(request, 'select.html', {"knobs": settings} )
 
 # class LeadListView(ListView):
 #     model = User
@@ -44,6 +48,11 @@ def tpcc(request):
 #     context_object_name = 'users'  # Default: object_list
 #     queryset = User.objects.all()
 
+def lead(request):
+    leads = Lead.objects.all()
+    return render(request, 'lead.html', {'leads': leads})
+
+'''
 class LeadListView(ListView):
     model = Lead
     template_name = 'lead.html'  # Default: <app_label>/<model_name>_list.html
@@ -64,3 +73,4 @@ class LeadListView(ListView):
                 lead.rank = curr_rank
         cnt += 1
     queryset = leads
+'''
