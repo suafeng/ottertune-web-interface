@@ -1,7 +1,7 @@
 [
 	{
         "fields": {
-            "name": "shared buffers", 
+            "name": "shared_buffers", 
             "description": "Sets the amount of memory the database server uses for shared memory buffers.", 
             "default": 1,
             "setting": "1,2,3"

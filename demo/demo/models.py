@@ -6,15 +6,11 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-SHARED_BUFFERS_CHOICES = (('1', '3'), ('2', '9'), ('3', '27'))
-EFFECTIVE_IO_CONCURRENCY_CHOICES = (('1', '1'), ('2', '2'))
-
 class Config(models.Model):
-  username = models.CharField(max_length=20)
+  username = models.CharField(max_length=40)
   email = models.CharField(max_length=40)
-  shared_buffers = models.IntegerField(choices=SHARED_BUFFERS_CHOICES)
-  effective_io_concurrency = models.IntegerField(choices=EFFECTIVE_IO_CONCURRENCY_CHOICES)
-
+  knobs_setting = models.TextField(default = "")
+ 
 class Lead(models.Model):
   username = models.CharField(max_length=20)
   tuning_time = models.FloatField(default=0.0)

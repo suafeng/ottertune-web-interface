@@ -6,7 +6,9 @@ from django.views.generic.list import ListView
 from django.utils import timezone
 
 from .forms import SignUpForm
-from .models import KnobCatalog, Lead
+from .models import KnobCatalog, Lead, Config
+from django.views.decorators.csrf import csrf_exempt
+from django.template.context_processors import csrf
 
 
 @login_required
@@ -29,18 +31,29 @@ def signup(request):
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
 
+@csrf_exempt
 def tpcc(request):
 
-   # if request.method == 'POST':
-   #     form = TpccForm(request.POST)
-  #      if form.is_valid():
-  #          return redirect('lead')
-  #  else:
+    if request.method == 'POST':
+        knobs_setting = {}
+        #return redirect('lead')
+        post = request.POST
+        for k in post:
+            if k != "username" and k != "email":
+                print k
+                knobs_setting[k] = post[k]
+        config = Config.objects.create(username = post["username"],
+                                      email = post["email"],
+                                      knobs_setting = knobs_setting)
+        config.save()
+        print knobs_setting
+
     knobs = KnobCatalog.objects.all()
     settings = []
     for knob in knobs:
         settings.append((knob, knob.setting.split(",")))
-    return render(request, 'select.html', {"knobs": settings} )
+    
+    return render(request, 'select.html', {"knobs": settings})
 
 # class LeadListView(ListView):
 #     model = User

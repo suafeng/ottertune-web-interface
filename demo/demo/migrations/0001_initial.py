@@ -25,10 +25,9 @@ class Migration(migrations.Migration):
             name='Config',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('username', models.CharField(max_length=20)),
+                ('username', models.CharField(max_length=40)),
                 ('email', models.CharField(max_length=40)),
-                ('shared_buffers', models.IntegerField(choices=[('1', '3'), ('2', '9'), ('3', '27')])),
-                ('effective_io_concurrency', models.IntegerField(choices=[('1', '1'), ('2', '2')])),
+                ('knobs_setting', models.TextField(default=''))
             ],
         ),
         migrations.CreateModel(
