@@ -7,8 +7,11 @@ from django.utils import timezone
 
 from .forms import SignUpForm
 from .models import KnobCatalog, Lead, Config
+from .tasks import get_oltpbench_results
 from django.views.decorators.csrf import csrf_exempt
 from django.template.context_processors import csrf
+
+
 
 
 @login_required
@@ -46,6 +49,8 @@ def tpcc(request):
                                       email = post["email"],
                                       knobs_setting = knobs_setting)
         config.save()
+        config_id = config.pk
+        reponse = get_oltpbench_results.delay(config_id)
         print knobs_setting
 
     knobs = KnobCatalog.objects.all()

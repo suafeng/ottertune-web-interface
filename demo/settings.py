@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 
+import djcelery
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'demo.demo',
+    'djcelery',
 ]
 
 MIDDLEWARE = [
@@ -89,6 +92,25 @@ DATABASES = {
     }
 }
 
+# ==============================================
+# RABBITMQ/CELERY CONFIGURATION
+# ==============================================
+
+# Broker URL for RabbitMq
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+
+# Enable finer-grained reporting: will report 'started' when
+# task is executed by a worker.
+CELERY_TRACK_STARTED = True
+
+# Worker will execute at most this many tasks before it's killed
+# and replaced with a new worker. This helps with memory leaks.
+CELERYD_MAX_TASKS_PER_CHILD = 50
+
+# Number of concurrent workers.
+CELERYD_CONCURRENCY = 1
+
+djcelery.setup_loader()
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/

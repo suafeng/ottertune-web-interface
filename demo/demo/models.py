@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+#from __future__ import unicode_literals
 
 from django.db import models
 from django.forms import ModelForm
@@ -9,7 +9,8 @@ from django.contrib.auth.models import User
 class Config(models.Model):
   username = models.CharField(max_length=40)
   email = models.CharField(max_length=40)
-  knobs_setting = models.TextField(default = "")
+  knobs_setting = models.TextField(default="")
+  #throughput = models.FloatField(default=0.0)
  
 class Lead(models.Model):
   username = models.CharField(max_length=20)
