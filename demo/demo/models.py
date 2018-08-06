@@ -10,14 +10,10 @@ class Config(models.Model):
   username = models.CharField(max_length=40)
   email = models.CharField(max_length=40)
   knobs_setting = models.TextField(default="")
-  #throughput = models.FloatField(default=0.0)
- 
-class Lead(models.Model):
-  username = models.CharField(max_length=20)
-  tuning_time = models.FloatField(default=0.0)
   throughput = models.FloatField(default=0.0)
-  rank = models.IntegerField(default=0)
-  
+  status = models.CharField(max_length=40, default='PENDING')
+
+
 class KnobCatalog(models.Model):
   name = models.CharField(max_length=30)
   description = models.CharField(max_length=200)

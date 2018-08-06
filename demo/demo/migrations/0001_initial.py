@@ -12,22 +12,14 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Lead',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('username', models.CharField(max_length=20)),
-                ('tuning_time', models.FloatField(default=0.0)),
-                ('throughput', models.FloatField(default=0.0)),
-                ('rank', models.IntegerField(default=0)),
-            ],
-        ),
-        migrations.CreateModel(
             name='Config',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('username', models.CharField(max_length=40)),
                 ('email', models.CharField(max_length=40)),
-                ('knobs_setting', models.TextField(default=''))
+                ('knobs_setting', models.TextField(default='')),
+                ('throughput', models.FloatField(default=0.0)),
+                ('status', models.CharField(default=b'PENDING', max_length=40))
             ],
         ),
         migrations.CreateModel(

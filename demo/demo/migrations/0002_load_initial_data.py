@@ -5,8 +5,7 @@ from django.db import migrations
 
 def load_initial_data(apps, schema_editor):
     initial_data_fixtures = [
-        "demo/demo/fixture/knobs.json",
-        "demo/demo/fixture/lead.json"
+        "demo/demo/fixture/knobs.json"
     ]
     for fixture in initial_data_fixtures:
         call_command("loaddata", fixture, app_label="demo")
@@ -14,8 +13,7 @@ def load_initial_data(apps, schema_editor):
 
 def unload_initial_data(apps, schema_editor):
     model_names = [
-        "TpccForm",
-        "Lead"
+        "KnobCatalog"
     ]
     for model_name in model_names:
         model = apps.get_model("demo", model_name)

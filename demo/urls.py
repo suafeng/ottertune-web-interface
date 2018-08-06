@@ -11,4 +11,7 @@ urlpatterns = [
     url(r'^signup/$', core_views.signup, name='signup'),
     url(r'^select/$', core_views.tpcc, name='tpcc'),
     url(r'^lead/$', core_views.lead, name='lead'),
+    url(r'^task/$', core_views.task, name='task'),
+    url(r'^new_result/$', core_views.new_result, name='new_result'),
+    url(r'^get_result/(?P<task_id>[0-9a-zA-Z]+)$', core_views.get_result, name="get_result")
 ]

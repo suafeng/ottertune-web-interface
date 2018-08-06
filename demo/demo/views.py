@@ -6,13 +6,18 @@ from django.views.generic.list import ListView
 from django.utils import timezone
 
 from .forms import SignUpForm
-from .models import KnobCatalog, Lead, Config
+from .models import KnobCatalog, Config
 from .tasks import get_oltpbench_results
 from django.views.decorators.csrf import csrf_exempt
 from django.template.context_processors import csrf
+from django.http import HttpResponse
+import json
+import logging
 
-
-
+# Logging
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.StreamHandler())
+LOG.setLevel(logging.INFO)
 
 @login_required
 def home(request):
@@ -39,7 +44,6 @@ def tpcc(request):
 
     if request.method == 'POST':
         knobs_setting = {}
-        #return redirect('lead')
         post = request.POST
         for k in post:
             if k != "username" and k != "email":
@@ -47,10 +51,10 @@ def tpcc(request):
                 knobs_setting[k] = post[k]
         config = Config.objects.create(username = post["username"],
                                       email = post["email"],
-                                      knobs_setting = knobs_setting)
+                                      knobs_setting = json.dumps(knobs_setting))
         config.save()
         config_id = config.pk
-        reponse = get_oltpbench_results.delay(config_id)
+        print config_id
         print knobs_setting
 
     knobs = KnobCatalog.objects.all()
@@ -60,35 +64,42 @@ def tpcc(request):
     
     return render(request, 'select.html', {"knobs": settings})
 
-# class LeadListView(ListView):
-#     model = User
-#     template_name = 'lead.html'  # Default: <app_label>/<model_name>_list.html
-#     context_object_name = 'users'  # Default: object_list
-#     queryset = User.objects.all()
+
+@csrf_exempt
+def task(request):
+    tasks = Config.objects.all()
+    return render(request, 'task.html', {'tasks': tasks})
+
+def get_result(request, task_id):
+    try:
+        config = Config.objects.get(pk=task_id)
+        config.status = 'RUNNING'
+        config.save()
+    except Config.DoesNotExist:
+        LOG.warning("Invalid task id: %s", task_id)
+        return HttpResponse("Invalid task id: " + task_id)
+
+    print "get result id {}".format(task_id)
+    return HttpResponse(config.knobs_setting)
 
 def lead(request):
-    leads = Lead.objects.all()
+    leads = Config.objects.filter(status='FINISHED').order_by('-throughput')
     return render(request, 'lead.html', {'leads': leads})
 
-'''
-class LeadListView(ListView):
-    model = Lead
-    template_name = 'lead.html'  # Default: <app_label>/<model_name>_list.html
-    context_object_name = 'leads'  # Default: object_list
-    # queryset = Lead.objects.all()
-    leads = Lead.objects.order_by('-throughput')
-    curr_rank = 1
-    cnt = 0
-
-    for lead in leads:
-        if cnt < 1:
-            lead.rank = curr_rank
-        else:
-            if lead.throughput == leads[cnt - 1].throughput:
-                lead.rank = leads[cnt - 1].rank
-            else:
-                curr_rank += 1
-                lead.rank = curr_rank
-        cnt += 1
-    queryset = leads
-'''
+@csrf_exempt
+def new_result(request):
+    if request.method == 'POST':
+        throughput = round(float(request.POST['throughput']), 2)
+        task_id = request.POST['task_id']
+        print throughput
+        print task_id
+        try:
+            config = Config.objects.get(pk=task_id)
+            config.throughput = throughput
+            config.status = 'FINISHED'
+            config.save()
+        except Config.DoesNotExist:
+            LOG.warning("Invalid task id: %s", task_id)
+        return HttpResponse("task id: {}, throughput (txn/sec): {}".format(task_id, throughput))
+    LOG.warning("Request type was not POST")
+    return HttpResponse("Request type was not POST")
