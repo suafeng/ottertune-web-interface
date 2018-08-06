@@ -66,7 +66,7 @@ def tpcc(request):
 
 
 @csrf_exempt
-def task(request):
+def tasks(request):
     tasks = Config.objects.all()
     return render(request, 'task.html', {'tasks': tasks})
 
@@ -85,6 +85,22 @@ def get_result(request, task_id):
 def lead(request):
     leads = Config.objects.filter(status='FINISHED').order_by('-throughput')
     return render(request, 'lead.html', {'leads': leads})
+
+def task_info(request, task_id):
+    knobs = KnobCatalog.objects.all()
+    settings = []
+
+    try:
+        config = Config.objects.get(pk=task_id)
+        knobs_setting = json.loads(config.knobs_setting)
+        for knob in knobs:
+            settings.append((knob, knobs_setting[knob.name]))
+        print settings
+    except Config.DoesNotExist:
+        LOG.warning("Invalid task id: %s", task_id)
+        return HttpResponse("Invalid task id: " + task_id)
+    return render(request, 'info.html', {'task': config, "settings": settings})
+
 
 @csrf_exempt
 def new_result(request):

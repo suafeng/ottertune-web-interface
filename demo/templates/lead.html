@@ -24,7 +24,8 @@
           <tr>
             <th scope="col">Rank #</th>
             <th scope="col">User</th>
-            <th scope="col">Tuning Time</th>
+            <th scope="col">Email</th>
+            <th scope="col">Task ID</th>
             <th scope="col">Throughput</th>
           </tr>
         </thead>
@@ -35,6 +36,7 @@
             <td>{{ forloop.counter }}</td>
             <td>{{ lead.username }}</td>
             <td>{{ lead.email }}</td>
+            <td><a href="/task_info/{{lead.id}}">{{ lead.id }}</a></td>
             <td>{{ lead.throughput }}</td>
           </tr> 
           {% endfor %}
