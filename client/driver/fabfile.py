@@ -54,7 +54,7 @@ def check_disk_usage():
 @task
 def restart_database():
     if CONF['database_type'] == 'postgres':
-        cmd = 'sudo service postgresql restart'
+        cmd = 'brew services restart postgres' #ubuntu: 'sudo service postgresql restart'
     else:
         raise Exception("Database Type {} Not Implemented !".format(CONF['database_type']))
     local(cmd)
@@ -81,8 +81,8 @@ def create_database():
 
 
 @task
-def change_conf():
-    next_conf = 'next_config'
+def change_conf(task_id=1):
+    next_conf = 'config_{}'.format(task_id)
     if CONF['database_type'] == 'postgres':
         cmd = 'sudo python PostgresConf.py {} {}'.format(next_conf, CONF['database_conf'])
     else:
@@ -97,48 +97,20 @@ def load_oltpbench():
     with lcd(CONF['oltpbench_home']):  # pylint: disable=not-context-manager
         local(cmd)
 
-
 @task
 def run_oltpbench():
-    cmd = "./oltpbenchmark -b {} -c {} --execute=true -s 5 -o outputfile".\
-          format(CONF['oltpbench_workload'], CONF['oltpbench_config'])
-    with lcd(CONF['oltpbench_home']):  # pylint: disable=not-context-manager
-        local(cmd)
-
-
-@task
-def run_oltpbench_bg():
-    cmd = "./oltpbenchmark -b {} -c {} --execute=true -s 5 -o outputfile > {} 2>&1 &".\
+    cmd = "./oltpbenchmark -b {} -c {} --execute=true -s 5 -o outputfile > {} ".\
           format(CONF['oltpbench_workload'], CONF['oltpbench_config'], CONF['oltpbench_log'])
     with lcd(CONF['oltpbench_home']):  # pylint: disable=not-context-manager
         local(cmd)
 
-
 @task
-def run_controller():
-    cmd = 'sudo gradle run -PappArgs="-c ' \
-          'config/sample_postgres_config.json -d output/postgres/" --no-daemon'
-    with lcd("../controller"):  # pylint: disable=not-context-manager
-        local(cmd)
+def save_dbms_result(task_id=1):
+    cmd_conf = 'mv ./config_{} {}'.format(task_id, CONF['save_path'])
+    cmd_oltpbench = 'cp {} {}/result_{}'.format(CONF['oltpbench_log'], CONF['save_path'], task_id)
+    local(cmd_conf)
+    local(cmd_oltpbench)
 
-
-@task
-def stop_controller():
-    pid = int(open('../controller/pid.txt').read())
-    cmd = 'sudo kill -2 {}'.format(pid)
-    with lcd("../controller"):  # pylint: disable=not-context-manager
-        local(cmd)
-
-
-@task
-def save_dbms_result():
-    t = int(time.time())
-    files = ['knobs.json', 'metrics_after.json', 'metrics_before.json', 'summary.json']
-    for f_ in files:
-        f_prefix = f_.split('.')[0]
-        cmd = 'cp ../controller/output/postgres/{} {}/{}__{}.json'.\
-              format(f_, CONF['save_path'], t, f_prefix)
-        local(cmd)
 
 
 @task
@@ -148,79 +120,47 @@ def free_cache():
 
 
 @task
-def upload_result():
-    cmd = 'python ../../server/website/script/upload/upload.py \
-           ../controller/output/postgres/ {} {}'.format(CONF['upload_code'],
-                                                        CONF['upload_url'])
+def upload_result(task_id=1):
+    cmd = 'python ./upload.py {} {} {}'.format(CONF['oltpbench_log'],
+                                               task_id,
+                                               "http://127.0.0.1:8000/new_result/")
     local(cmd)
 
 
 @task
-def get_result():
-    cmd = 'python ../../script/query_and_get.py https://ottertune.cs.cmu.edu {} 5'.\
-          format(CONF['upload_code'])
+def get_result(task_id=1):
+    cmd = 'python ../../script/get_result.py http://127.0.0.1:8000 {} 5'.\
+          format(task_id)
     local(cmd)
 
-
-def _ready_to_start_controller():
-    return (os.path.exists(CONF['oltpbench_log']) and
-            'Warmup complete, starting measurements'
-            in open(CONF['oltpbench_log']).read())
-
-
-def _ready_to_shut_down_controller():
-    pid_file_path = '../controller/pid.txt'
-    return (os.path.exists(pid_file_path) and os.path.exists(CONF['oltpbench_log']) and
-            'Output into file' in open(CONF['oltpbench_log']).read())
-
-
 @task
-def loop():
-    max_disk_usage = 80
+def loop(task_id=1):
 
     # free cache
-    free_cache()
+    # free_cache()
+
+    # get result
+    get_result(task_id)
+
+    # change config
+    change_conf(task_id)
 
     # restart database
     restart_database()
 
-    # check disk usage
-    if check_disk_usage() > max_disk_usage:
-        LOG.info('Exceeds max disk usage %s, reload database', max_disk_usage)
-        drop_database()
-        create_database()
-        load_oltpbench()
-        LOG.info('Reload database Done !')
-
-    # run oltpbench as a background job
-    run_oltpbench_bg()
-
-    # run controller from another process
-    p = Process(target=run_controller, args=())
-    while not _ready_to_start_controller():
-        pass
-    p.start()
-    while not _ready_to_shut_down_controller():
-        pass
-
-    # stop the experiment
-    stop_controller()
-
-    p.join()
+    # run oltpbench
+    run_oltpbench()
 
     # upload result
-    upload_result()
+    upload_result(task_id)
 
-    # get result
-    get_result()
-
-    # change config
-    change_conf()
+    # move config 
+    save_dbms_result(task_id)
 
 
 @task
 def run_loops(max_iter=1):
     for i in range(int(max_iter)):
         LOG.info('The %s-th Loop Starts / Total Loops %s', i + 1, max_iter)
-        loop()
+        loop(i + 1)
         LOG.info('The %s-th Loop Ends / Total Loops %s', i + 1, max_iter)
