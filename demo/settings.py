@@ -135,3 +135,6 @@ STATIC_URL = '/static/'
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = 'home'
+
+EMAIL_FROMADDR = "zbhspam@gmail.com"
+EMAIL_PWD = "zbh19950730"
